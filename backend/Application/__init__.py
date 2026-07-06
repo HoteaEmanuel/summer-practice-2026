@@ -1,13 +1,14 @@
 
-from flask import Flask # type: ignore
+from flask import Flask
 from .database.db import initialize_db
-from flask_cors import CORS # type: ignore
+from flask_cors import CORS
 import configparser
 import os
-from apscheduler.schedulers.background import BackgroundScheduler # type: ignore
+from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
 import time
 from .scripts.toggle import power_off_devices, power_on_devices
+from .scripts.utils import ensure_default_dev_user
 
 secret = configparser.ConfigParser()
 config_path = os.path.join(os.path.dirname(__file__), 'scripts', 'config.ini')
@@ -20,6 +21,9 @@ app.config['MONGODB_SETTINGS'] = {
 }
 initialize_db(app)
 CORS(app)
+
+if os.environ.get('FLASK_ENV') == 'development' or os.environ.get('FLASK_DEBUG') == '1' or app.debug:
+    ensure_default_dev_user()
 
 
 sched = BackgroundScheduler(daemon=True)
