@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import {
     Alert,
     Button,
-    Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
@@ -14,6 +13,7 @@ import {
     Stack,
     TextField,
 } from "@mui/material";
+import DockedDialog from "./DockedDialog";
 
 const initialFormData = {
     deviceName: "",
@@ -97,13 +97,15 @@ const AddDeviceForm = ({ open, onClose, onSuccess }) => {
     };
 
     return (
-        <Dialog open={open} onClose={handleDialogClose} fullWidth maxWidth="sm">
+        <DockedDialog
+            open={open}
+            onClose={handleDialogClose}
+        >
             <DialogTitle>Add Device</DialogTitle>
             <DialogContent dividers>
-                <form id="add-device-form" onSubmit={handleSubmit}>
-                    <Stack spacing={2} sx={{ mt: 1 }}>
-                        {error && <Alert severity="error">{error}</Alert>}
-
+                {error && <Alert severity="error">{error}</Alert>}
+                <Stack component="form" id="add-device-form" onSubmit={handleSubmit} direction="row" spacing={2}>
+                    <Stack spacing={2} sx={{ mt: 1, width: 300 }}>
                         <TextField
                             name="deviceName"
                             label="Device Name"
@@ -166,21 +168,9 @@ const AddDeviceForm = ({ open, onClose, onSuccess }) => {
                             fullWidth
                             required
                         />
+                    </Stack>
 
-                        <FormControl fullWidth required>
-                            <InputLabel id="connectivity-type-label">Connectivity Type</InputLabel>
-                            <Select
-                                labelId="connectivity-type-label"
-                                label="Connectivity Type"
-                                name="connectivityType"
-                                value={formData.connectivityType}
-                                onChange={handleChange}
-                            >
-                                <MenuItem value="ssh">SSH</MenuItem>
-                                <MenuItem value="snmp">SNMP</MenuItem>
-                            </Select>
-                        </FormControl>
-
+                    <Stack spacing={2} sx={{ mt: 1, width: 300 }}>
                         <TextField
                             name="ip"
                             label="IP Address"
@@ -198,6 +188,20 @@ const AddDeviceForm = ({ open, onClose, onSuccess }) => {
                             fullWidth
                             required
                         />
+                        
+                        <FormControl fullWidth required>
+                            <InputLabel id="connectivity-type-label">Connectivity Type</InputLabel>
+                            <Select
+                                labelId="connectivity-type-label"
+                                label="Connectivity Type"
+                                name="connectivityType"
+                                value={formData.connectivityType}
+                                onChange={handleChange}
+                            >
+                                <MenuItem value="ssh">SSH</MenuItem>
+                                <MenuItem value="snmp">SNMP</MenuItem>
+                            </Select>
+                        </FormControl>
 
                         {formData.connectivityType === "ssh" && (
                             <>
@@ -244,7 +248,7 @@ const AddDeviceForm = ({ open, onClose, onSuccess }) => {
                             </>
                         )}
                     </Stack>
-                </form>
+                </Stack>
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleDialogClose} disabled={isSubmitting}>
@@ -254,7 +258,7 @@ const AddDeviceForm = ({ open, onClose, onSuccess }) => {
                     {isSubmitting ? "Submitting..." : "Submit"}
                 </Button>
             </DialogActions>
-        </Dialog>
+        </DockedDialog>
     );
 };
 

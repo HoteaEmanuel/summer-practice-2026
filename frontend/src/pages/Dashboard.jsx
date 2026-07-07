@@ -1,11 +1,8 @@
-import { Container, Typography } from "@mui/material";
+import PageHeader from "../components/PageHeader";
 
 function Dashboard() {
     return (
-        <Container>
-            <Typography variant="h4">Dashboard</Typography>
-            <Typography variant="body1">This is a placeholder.</Typography>
-        </Container>
+        <PageHeader title="Dashboard" breadcrumbItems={["Home", "Dashboard"]} />
     );
 }
 

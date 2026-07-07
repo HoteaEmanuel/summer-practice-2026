@@ -10,11 +10,11 @@ import {
     Avatar,
     IconButton,
     Typography,
+    Toolbar,
 } from "@mui/material";
 import { Home } from "@mui/icons-material";
 import CellTowerIcon from "@mui/icons-material/CellTower";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import { useNavigate } from "react-router-dom";

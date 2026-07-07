@@ -1,14 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    IconButton,
-    Menu,
     MenuItem,
     Dialog,
     DialogTitle,
@@ -16,14 +7,17 @@ import {
     DialogActions,
     Button,
     Container,
+    Typography,
+    Divider,
+    Box,
 } from "@mui/material";
-import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 import AddIcon from "@mui/icons-material/Add";
+import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 import AddDeviceForm from "../components/AddDeviceForm";
+import PageHeader from "../components/PageHeader";
 
 const DeviceTable = () => {
     const [devices, setDevices] = useState([]);
-    const [anchorEl, setAnchorEl] = useState(null);
     const [selectedDevice, setSelectedDevice] = useState(null);
     const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
     const [selectedAction, setSelectedAction] = useState(null);
@@ -31,7 +25,7 @@ const DeviceTable = () => {
 
     const fetchDevices = async () => {
         try {
-            const response = await fetch("/devices");
+            const response = await fetch("/api/devices");
             if (!response.ok) {
                 throw new Error(`Failed to fetch devices: ${response.status}`);
             }
@@ -46,31 +40,22 @@ const DeviceTable = () => {
         fetchDevices();
     }, []);
 
-    const handleMenuOpen = (event, device) => {
-        setAnchorEl(event.currentTarget);
+    const handleScheduleOpen = (device) => {
         setSelectedDevice(device);
-    };
-
-    const handleMenuClose = () => {
-        setAnchorEl(null);
-        setSelectedDevice(null);
-    };
-
-    const handleScheduleOpen = () => {
         setIsScheduleDialogOpen(true);
         setSelectedAction("schedule");
-        handleMenuClose();
     };
 
     const handleScheduleClose = () => {
         setIsScheduleDialogOpen(false);
         setSelectedAction(null);
+        setSelectedDevice(null);
     };
 
-    const handleAction = (action) => {
+    const handleAction = (action, device) => {
         switch (action) {
             case "schedule":
-                handleScheduleOpen();
+                handleScheduleOpen(device);
                 break;
             case "edit":
                 // Handle edit action
@@ -82,6 +67,75 @@ const DeviceTable = () => {
                 break;
         }
     };
+
+    const columns = useMemo(
+        () => [
+            { accessorKey: "deviceName", header: "Device Name" },
+            { accessorKey: "deviceSlNo", header: "Serial Number" },
+            { accessorKey: "deviceType", header: "Device Type" },
+            { accessorKey: "hwType", header: "Hardware Type" },
+            { accessorKey: "site", header: "Site" },
+            { accessorKey: "group", header: "Group" },
+            { accessorKey: "owner", header: "Owner" },
+            {
+                id: "connection",
+                header: "Connection",
+                accessorFn: (row) => {
+                    const type = row.connectivityType || "-";
+                    const ip = row.ip || "-";
+                    const port = row.port || "-";
+                    return `${type} | ${ip}:${port}`;
+                },
+            },
+        ],
+        [],
+    );
+
+    const table = useMaterialReactTable({
+        columns,
+        data: devices,
+        enableRowActions: true,
+        positionActionsColumn: "last",
+        muiTableContainerProps: {
+        },
+        muiTablePaperProps: {
+            elevation: 0,
+        },
+        renderTopToolbarCustomActions: () => (
+            <Button variant="outlined" startIcon={<AddIcon />} onClick={handleAddDialogOpen}>
+                Add Device
+            </Button>
+        ),
+        renderRowActionMenuItems: ({ row, closeMenu }) => [
+            <MenuItem
+                key="schedule"
+                onClick={() => {
+                    handleAction("schedule", row.original);
+                    closeMenu();
+                }}
+            >
+                Schedule
+            </MenuItem>,
+            <MenuItem
+                key="edit"
+                onClick={() => {
+                    handleAction("edit", row.original);
+                    closeMenu();
+                }}
+            >
+                Edit
+            </MenuItem>,
+            <MenuItem
+                key="remove"
+                onClick={() => {
+                    handleAction("remove", row.original);
+                    closeMenu();
+                }}
+            >
+                Remove
+            </MenuItem>,
+        ],
+    });
 
     const handlePerformAction = async () => {
         if (!selectedDevice) return;
@@ -120,73 +174,8 @@ const DeviceTable = () => {
 
     return (
         <Container maxWidth={false} disableGutters>
-            <Button variant="outlined" startIcon={<AddIcon />} onClick={handleAddDialogOpen}>
-                Add Device
-            </Button>
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Device Name</TableCell>
-                            <TableCell>Serial Number</TableCell>
-                            <TableCell>Device Type</TableCell>
-                            <TableCell>Hardware Type</TableCell>
-                            <TableCell>Site</TableCell>
-                            <TableCell>Group</TableCell>
-                            <TableCell>Owner</TableCell>
-                            <TableCell>Connectivity Type</TableCell>
-                            <TableCell>IP Address</TableCell>
-                            <TableCell>Port</TableCell>
-                            <TableCell>Login User</TableCell>
-                            <TableCell>Password</TableCell>
-                            <TableCell>Read Community</TableCell>
-                            <TableCell>Write Community</TableCell>
-                            <TableCell>Actions</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {devices.map((device, index) => (
-                            <TableRow key={index}>
-                                <TableCell>{device.deviceName}</TableCell>
-                                <TableCell>{device.deviceSlNo}</TableCell>
-                                <TableCell>{device.deviceType}</TableCell>
-                                <TableCell>{device.hwType}</TableCell>
-                                <TableCell>{device.site}</TableCell>
-                                <TableCell>{device.group}</TableCell>
-                                <TableCell>{device.owner}</TableCell>
-                                <TableCell>{device.connectivityType}</TableCell>
-                                <TableCell>{device.ip}</TableCell>
-                                <TableCell>{device.port}</TableCell>
-                                <TableCell>{device.loginUser}</TableCell>
-                                <TableCell>{device.password}</TableCell>
-                                <TableCell>{device.readCommunity}</TableCell>
-                                <TableCell>{device.writeCommunity}</TableCell>
-                                <TableCell>
-                                    <IconButton
-                                        aria-label="more"
-                                        aria-controls={`device-menu-${index}`}
-                                        aria-haspopup="true"
-                                        onClick={(event) => handleMenuOpen(event, device)}
-                                    >
-                                        <MoreVertIcon />
-                                    </IconButton>
-                                    <Menu
-                                        id={`device-menu-${index}`}
-                                        anchorEl={anchorEl}
-                                        keepMounted
-                                        open={Boolean(anchorEl)}
-                                        onClose={handleMenuClose}
-                                    >
-                                        <MenuItem onClick={() => handleAction("schedule")}>Schedule</MenuItem>
-                                        <MenuItem onClick={() => handleAction("edit")}>Edit</MenuItem>
-                                        <MenuItem onClick={() => handleAction("remove")}>Remove</MenuItem>
-                                    </Menu>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+            <PageHeader title="Devices" breadcrumbItems={["Home", "Devices"]} />
+            <MaterialReactTable table={table} />
             <Dialog open={isScheduleDialogOpen} onClose={handleScheduleClose}>
                 <DialogTitle>Schedule Action</DialogTitle>
                 <DialogContent>

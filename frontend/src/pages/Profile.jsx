@@ -1,11 +1,7 @@
+import PageHeader from "../components/PageHeader";
 
 function Profile() {
-
-  return (
-    <div>
-      <h2>Profile</h2>
-    </div>
-  );
+    return <PageHeader title="Profile" breadcrumbItems={["Home", "Profile"]} />;
 }
 
 export default Profile;
