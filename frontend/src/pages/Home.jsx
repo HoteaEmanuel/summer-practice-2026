@@ -23,7 +23,7 @@ const steps = [
 
 function Home() {
     return (
-        <Box>
+        <Container maxWidth={false} disableGutters>
             <Box
                 sx={{
                     height: "40vh",
@@ -37,7 +37,7 @@ function Home() {
                     px: 2,
                 }}
             >
-                <Typography variant="h1" fontWeight="bold" gutterBottom>
+                <Typography variant="h1" gutterBottom>
                     Smart Energy Saving
                 </Typography>
                 <Typography variant="h2">
@@ -46,9 +46,9 @@ function Home() {
             </Box>
 
             <Container sx={{ py: 6 }}>
-                <Grid container spacing={4} justifyContent="center">
+                <Grid container spacing={4}>
                     {steps.map(({ icon, title, description }) => (
-                        <Grid item xs={12} sm={6} md={4} key={title}>
+                        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={title}>
                             <Card
                                 elevation={3}
                                 sx={{
@@ -62,7 +62,7 @@ function Home() {
                             >
                                 <CardContent>
                                     <Box sx={{ mb: 2, color: "primary.main" }}>{icon}</Box>
-                                    <Typography variant="h5" fontWeight="medium" gutterBottom>
+                                    <Typography variant="h5" gutterBottom>
                                         {title}
                                     </Typography>
                                     <Typography variant="body1" color="text.secondary">
@@ -74,7 +74,7 @@ function Home() {
                     ))}
                 </Grid>
             </Container>
-        </Box>
+        </Container>
     );
 }
 
