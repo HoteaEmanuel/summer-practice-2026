@@ -1,199 +1,177 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  TextField,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Typography,
-  Divider,
-  Box,
-  Grid,
-} from '@mui/material';
+    TextField,
+    Button,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Typography,
+    Divider,
+    Box,
+    Grid,
+    Container,
+} from "@mui/material";
+import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
+import PageHeader from "../components/PageHeader";
 
 const ManageUsers = () => {
-  const [users, setUsers] = useState([]);
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('user');
-  const [site, setSite] = useState('');
-  const [group, setGroup] = useState('');
-  const [message, setMessage] = useState('');
+    const [users, setUsers] = useState([]);
+    const [name, setName] = useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [role, setRole] = useState("user");
+    const [site, setSite] = useState("");
+    const [group, setGroup] = useState("");
+    const [message, setMessage] = useState("");
 
-  const fetchData = async () => {
-    try {
-      const response = await fetch('/api/users');
-      const data = await response.json();
-      setUsers(data);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    }
-  };
+    const fetchData = async () => {
+        try {
+            const response = await fetch("/api/users");
+            const data = await response.json();
+            setUsers(data);
+        } catch (error) {
+            console.error("Error fetching users:", error);
+        }
+    };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+    useEffect(() => {
+        fetchData();
+    }, []);
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
+    const columns = useMemo(
+        () => [
+            { accessorKey: "name", header: "Name" },
+            { accessorKey: "username", header: "Username" },
+            { accessorKey: "role", header: "Role" },
+            { accessorKey: "site", header: "Site" },
+            { accessorKey: "group", header: "Group" },
+        ],
+        [],
+    );
 
-    try {
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+    const table = useMaterialReactTable({
+        columns,
+        data: users,
+        muiTablePaperProps: {
+            elevation: 0,
         },
-        body: JSON.stringify({ name, username, password, role, site, group }),
-      });
+    });
 
-      const data = await response.json();
-      setMessage(data.message);
-      setName('');
-      setUsername('');
-      setPassword('');
-      setRole('user');
-      setSite('');
-      setGroup('');
-      fetchData(); // Refresh user data after registration
-    } catch (error) {
-      console.error('Error registering user:', error);
-    }
-  };
+    /** @param {any} e */
+    const handleRegister = async (e) => {
+        e.preventDefault();
 
-  return (
-    <div>
-      <Typography variant="h4" gutterBottom>
-        User Management
-      </Typography>
+        try {
+            const response = await fetch("/api/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ name, username, password, role, site, group }),
+            });
 
-      <form onSubmit={handleRegister}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={2}>
-            <TextField
-              fullWidth
-              label="Full Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </Grid>
-          <Grid item xs={12} sm={2}>
-            <TextField
-              fullWidth
-              label="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </Grid>
-          <Grid item xs={12} sm={2}>
-            <TextField
-              fullWidth
-              type="password"
-              label="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </Grid>
-          <Grid item xs={12} sm={2}>
-            <FormControl fullWidth>
-              <InputLabel>Role</InputLabel>
-              <Select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                required
-              >
-                <MenuItem value="user">User</MenuItem>
-                <MenuItem value="admin">Admin</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={2}>
-            <FormControl fullWidth>
-              <InputLabel>Site</InputLabel>
-              <Select
-                value={site}
-                onChange={(e) => setSite(e.target.value)}
-                required
-              >
-                <MenuItem value="Romania">Romania</MenuItem>
-                <MenuItem value="India">India</MenuItem>
-                <MenuItem value="Poland">Poland</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={2}>
-            <FormControl fullWidth>
-              <InputLabel>Group</InputLabel>
-              <Select
-                value={group}
-                onChange={(e) => setGroup(e.target.value)}
-                required
-              >
-                <MenuItem value="group1">Group 1</MenuItem>
-                <MenuItem value="group2">Group 2</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12}>
-            <Button type="submit" variant="contained" color="primary">
-              Register
-            </Button>
-          </Grid>
-        </Grid>
-      </form>
-      <br />
+            const data = await response.json();
+            setMessage(data.message);
+            setName("");
+            setUsername("");
+            setPassword("");
+            setRole("user");
+            setSite("");
+            setGroup("");
+            fetchData(); // Refresh user data after registration
+        } catch (error) {
+            console.error("Error registering user:", error);
+        }
+    };
 
-      {message && (
-        <Typography variant="body1" gutterBottom>
-          {message}
-        </Typography>
-      )}
+    return (
+        <Container maxWidth={false} disableGutters>
+            <PageHeader title="Manage Users" breadcrumbItems={["Home", "Manage Users"]} />
 
-      <Divider />
+            <MaterialReactTable table={table} />
 
-      <Box marginTop={4}>
-        <Typography variant="h5" gutterBottom>
-          User List
-        </Typography>
+            <Divider />
 
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Username</TableCell>
-                <TableCell>Role</TableCell>
-                <TableCell>Site</TableCell>
-                <TableCell>Group</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.username}</TableCell>
-                  <TableCell>{user.role}</TableCell>
-                  <TableCell>{user.site}</TableCell>
-                  <TableCell>{user.group}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-    </div>
-  );
+            <Box sx={{ mb: 3 }}>
+                <Typography variant="h5" gutterBottom>
+                    Register User
+                </Typography>
+
+                <form onSubmit={handleRegister}>
+                    <Grid container spacing={2}>
+                        <Grid size={{ xs: 12, sm: 2 }}>
+                            <TextField
+                                fullWidth
+                                label="Full Name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                required
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 2 }}>
+                            <TextField
+                                fullWidth
+                                label="Username"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                required
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 2 }}>
+                            <TextField
+                                fullWidth
+                                type="password"
+                                label="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 2 }}>
+                            <FormControl fullWidth>
+                                <InputLabel>Role</InputLabel>
+                                <Select value={role} onChange={(e) => setRole(e.target.value)} required>
+                                    <MenuItem value="user">User</MenuItem>
+                                    <MenuItem value="admin">Admin</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 2 }}>
+                            <FormControl fullWidth>
+                                <InputLabel>Site</InputLabel>
+                                <Select value={site} onChange={(e) => setSite(e.target.value)} required>
+                                    <MenuItem value="Romania">Romania</MenuItem>
+                                    <MenuItem value="India">India</MenuItem>
+                                    <MenuItem value="Poland">Poland</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 2 }}>
+                            <FormControl fullWidth>
+                                <InputLabel>Group</InputLabel>
+                                <Select value={group} onChange={(e) => setGroup(e.target.value)} required>
+                                    <MenuItem value="group1">Group 1</MenuItem>
+                                    <MenuItem value="group2">Group 2</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid size={12}>
+                            <Button type="submit" variant="contained" color="primary">
+                                Register
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </form>
+            </Box>
+
+            {message && (
+                <Typography variant="body1" gutterBottom>
+                    {message}
+                </Typography>
+            )}
+        </Container>
+    );
 };
 
 export default ManageUsers;
