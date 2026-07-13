@@ -1,11 +1,10 @@
-import PropTypes from "prop-types";
-import { Dialog } from "@mui/material";
+import { Dialog, DialogProps } from "@mui/material";
 
-/**
- * Right-docked dialog panel that fills viewport height.
- * @param {import('@mui/material').DialogProps} props
- */
-const DockedDialog = ({ children, slotProps, ...props }) => {
+const DockedDialog = ({
+    children,
+    slotProps,
+    ...props
+}: Omit<DialogProps, "slotProps"> & { slotProps?: any }) => {
     return (
         <Dialog
             {...props}
@@ -36,11 +35,6 @@ const DockedDialog = ({ children, slotProps, ...props }) => {
             {children}
         </Dialog>
     );
-};
-
-DockedDialog.propTypes = {
-    children: PropTypes.node,
-    slotProps: PropTypes.object,
 };
 
 export default DockedDialog;

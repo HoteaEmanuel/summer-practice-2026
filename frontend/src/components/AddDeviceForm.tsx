@@ -1,5 +1,4 @@
 import { useState } from "react";
-import PropTypes from "prop-types";
 import {
     Alert,
     Button,
@@ -32,10 +31,13 @@ const initialFormData = {
     writeCommunity: "",
 };
 
-/**
- * @param {{ open: boolean, onClose: () => void, onSuccess?: (createdDevice: unknown) => void }} props
- */
-const AddDeviceForm = ({ open, onClose, onSuccess }) => {
+interface AddDeviceFormProps {
+    open?: boolean;
+    onClose?: () => void;
+    onSuccess?: (createdDevice: unknown) => void;
+}
+
+const AddDeviceForm = ({ open = false, onClose, onSuccess }: AddDeviceFormProps) => {
     const [formData, setFormData] = useState({
         ...initialFormData,
     });
@@ -53,7 +55,7 @@ const AddDeviceForm = ({ open, onClose, onSuccess }) => {
         if (isSubmitting) return;
         setError("");
         setFormData({ ...initialFormData });
-        onClose();
+        onClose?.();
     };
 
     /** @param {import('react').FormEvent<HTMLFormElement>} e */
@@ -84,7 +86,7 @@ const AddDeviceForm = ({ open, onClose, onSuccess }) => {
             if (onSuccess) {
                 onSuccess(createdDevice);
             }
-            onClose();
+            onClose?.();
         } catch (error) {
             if (error instanceof Error) {
                 setError(error.message || "Failed to add device.");
@@ -260,12 +262,6 @@ const AddDeviceForm = ({ open, onClose, onSuccess }) => {
             </DialogActions>
         </DockedDialog>
     );
-};
-
-AddDeviceForm.propTypes = {
-    open: PropTypes.bool.isRequired,
-    onClose: PropTypes.func.isRequired,
-    onSuccess: PropTypes.func,
 };
 
 export default AddDeviceForm;
