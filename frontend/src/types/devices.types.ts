@@ -22,6 +22,8 @@ export type Device = {
   writeCommunity?: string;
   powerOnTime?: string;
   powerOffTime?: string;
+  scheduleEnabled?: boolean;
+  scheduleDays?: string[];
   count?: number;
   consumptionPerHour?: number;
 };

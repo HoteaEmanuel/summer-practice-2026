@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import ScheduleForm from "../components/ScheduleForm";
 import {
   MenuItem,
   Dialog,
@@ -209,31 +210,19 @@ const DeviceTable = () => {
   const handlePerformAction = async () => {
     if (!selectedDevice) return;
     try {
-      if (selectedAction === "schedule") {
-        const deviceId = (selectedDevice as any)._id?.$oid || (selectedDevice as any)._id;
-        
-        const scheduleData = {
-          deviceId,
-          alwaysOn,
-          onTime: alwaysOn ? null : onTime,
-          offTime: alwaysOn ? null : offTime,
-          activeDays: alwaysOn ? [] : activeDays,
-        };
-
-        const response = await fetch('/api/schedule', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(scheduleData),
-        });
-
-        if (response.ok) {
-          console.log("Datele au ajuns cu succes in baza de date!");
-          fetchDevices(); 
-        } else {
-          console.error("Eroare la trimiterea datelor.");
-        }
+      switch (selectedAction) {
+        case "schedule":
+          // Perform schedule action with selectedDevice._id
+          console.log(`Scheduled action for device ${selectedDevice._id}`);
+          break;
+        case "edit":
+          // Perform edit action with selectedDevice._id
+          break;
+        case "remove":
+          // Perform remove action with selectedDevice._id
+          break;
+        default:
+          break;
       }
       handleScheduleClose();
     } catch (error) {
@@ -259,51 +248,16 @@ const DeviceTable = () => {
     <Container maxWidth={false} disableGutters>
       <PageHeader title="Devices" breadcrumbItems={["Home", "Devices"]} />
       <MaterialReactTable table={table} />
-      
-      <Dialog open={isScheduleDialogOpen} onClose={handleScheduleClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ borderBottom: 1, borderColor: 'divider', pb: 2, mb: 2 }}>
-          Schedule — {selectedDevice?.deviceName}
-        </DialogTitle>
+      <Dialog open={isScheduleDialogOpen} onClose={handleScheduleClose}>
+        <DialogTitle>Schedule Action</DialogTitle>
         <DialogContent>
-          <FormControlLabel
-            control={<Switch checked={alwaysOn} onChange={(e) => setAlwaysOn(e.target.checked)} />}
-            label="No schedule (always on)"
-            sx={{ mb: 3 }}
-          />
-
-          {/* AICI ESTE MODIFICAREA PENTRU ALINIERA ORIZONTALĂ */}
-          <Box sx={{ display: "flex", flexDirection: "row", gap: 2, mb: 3 }}>
-            <TextField
-              label="On time" type="time" value={onTime}
-              onChange={(e) => setOnTime(e.target.value)} disabled={alwaysOn} fullWidth InputLabelProps={{ shrink: true }}
-              sx={{ flex: 1 }}
-            />
-            <TextField
-              label="Off time" type="time" value={offTime}
-              onChange={(e) => setOffTime(e.target.value)} disabled={alwaysOn} fullWidth InputLabelProps={{ shrink: true }}
-              sx={{ flex: 1 }}
-            />
-          </Box>
-
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            Active days
-          </Typography>
-          <ToggleButtonGroup
-            value={activeDays} onChange={handleDayToggle} disabled={alwaysOn} aria-label="active days" size="small" fullWidth
-          >
-            {daysOfWeek.map((day) => (
-              <ToggleButton key={day} value={day} aria-label={day}>
-                {day}
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
+          {/* Add content for scheduling here */}
+          Schedule dialog content...
         </DialogContent>
-        <DialogActions sx={{ pt: 2, pb: 2, pr: 3 }}>
-          <Button onClick={handleScheduleClose} sx={{ fontWeight: 'bold' }}>
-            CANCEL
-          </Button>
-          <Button onClick={handlePerformAction} variant="contained" color="primary">
-            SAVE SCHEDULE
+        <DialogActions>
+          <Button onClick={handleScheduleClose}>Cancel</Button>
+          <Button onClick={handlePerformAction} color="primary">
+            Schedule
           </Button>
         </DialogActions>
       </Dialog>
