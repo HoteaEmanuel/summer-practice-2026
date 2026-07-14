@@ -18,23 +18,38 @@ def add_device():
         new_device = Device(**device_data)
         new_device.save()
         return jsonify({'message': 'Device added successfully'}), 201
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 400
+
+# --- RUTA COMBINATĂ PENTRU EDITARE (PUT) ȘI ȘTERGERE (DELETE) ---
+@app.route('/device/<_id>', methods=['PUT', 'DELETE'])
+def manage_device(_id):
+    # Dacă primim o cerere de UPDATE
+    if request.method == 'PUT':
+        try:
+            device_data = request.get_json()
+            device_data.pop('_id', None) # Eliminăm ID-ul pentru a evita erorile de suprascriere
             
-    except Exception as e:
-        print(e)
-        return jsonify({'error': str(e)}), 400
-    
-@app.route('/device/<_id>', methods=['DELETE'])
-def remove_device(_id):
-    try:
-        deviceToDelete = Device.objects(id=ObjectId(_id))
-        if deviceToDelete:
-            deviceToDelete.delete()
-            return jsonify({'message': 'Device deleted successfully'}), 200
-        else:
-            return jsonify({'error': 'Device not found'}), 404
-    except Exception as e:
-        print(e)
-        return jsonify({'error': str(e)}), 400
-    
-    
-         
+            deviceToUpdate = Device.objects(id=ObjectId(_id))
+            if deviceToUpdate:
+                deviceToUpdate.update(**device_data)
+                return jsonify({'message': 'Device updated successfully'}), 200
+            else:
+                return jsonify({'error': 'Device not found'}), 404
+        except Exception as e:
+            print(e)
+            return jsonify({'error': str(e)}), 400
+
+    # Dacă primim o cerere de ȘTERGERE
+    elif request.method == 'DELETE':
+        try:
+            deviceToDelete = Device.objects(id=ObjectId(_id))
+            if deviceToDelete:
+                deviceToDelete.delete()
+                return jsonify({'message': 'Device deleted successfully'}), 200
+            else:
+                return jsonify({'error': 'Device not found'}), 404
+        except Exception as e:
+            print(e)
+            return jsonify({'error': str(e)}), 400
