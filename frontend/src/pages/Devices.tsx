@@ -18,24 +18,24 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
-import AddDeviceForm from "../components/AddDeviceForm";
+import DeviceForm from "../components/DeviceForm";
 import PageHeader from "../components/PageHeader";
+import { Device } from "../types/devices.types";
 
 type ActionType = "schedule" | "edit" | "remove" | null;
 
 const DeviceTable = () => {
-  const [devices, setDevices] = useState([]);
-  const [selectedDevice, setSelectedDevice] = useState<any>(null);
+  const [devices, setDevices] = useState<Device[]>([]);
+  const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
+  const [editingDevice, setEditingDevice] = useState<Device | null>(null);
   const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<ActionType>(null);
-  
-  // Stare pentru fereastra de Adăugare/Editare
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [deviceToDelete, setDeviceToDelete] = useState<Device | null>(null);
 
   const fetchDevices = async () => {
     try {
       const response = await fetch("/api/devices", {
-        // Aceste setări obligă browser-ul să ceară mereu date proaspete din baza de date
         cache: "no-store",
         headers: {
           "Pragma": "no-cache",
@@ -56,7 +56,7 @@ const DeviceTable = () => {
     fetchDevices();
   }, []);
 
-  const handleScheduleOpen = (device: any) => {
+  const handleScheduleOpen = (device: Device) => {
     setSelectedDevice(device);
     setIsScheduleDialogOpen(true);
     setSelectedAction("schedule");
@@ -68,8 +68,20 @@ const DeviceTable = () => {
     setSelectedDevice(null);
   };
 
-  // Funcția de ștergere instantanee
-  const handleRemoving = async (id: string) => {
+  // Logica de ștergere adăugată de coleg (cu confirmare)
+  const handleConfirmRemove = async () => {
+    if (!deviceToDelete) return;
+    // Extragem corect ID-ul
+    const deviceId = (deviceToDelete as any)._id?.$oid || (deviceToDelete as any)._id;
+    await handleRemove(deviceId);
+    setDeviceToDelete(null);
+  };
+
+  const handleCancelRemove = () => {
+    setDeviceToDelete(null);
+  };
+
+  const handleRemove = async (id: string) => {
     try {
       const response = await fetch("/api/device/" + id, {
         method: "DELETE",
@@ -77,27 +89,28 @@ const DeviceTable = () => {
       if (!response.ok) {
         throw new Error(`Failed to delete device: ${response.status}`);
       }
-      // Reîncărcăm datele de la server pentru a evita ecranul alb
+      // Păstrăm reîncărcarea datelor instant pe care ai făcut-o tu
       fetchDevices(); 
     } catch (error) {
       console.error("Error deleting device:", error);
     }
   };
 
-  const handleAction = (action: ActionType, device: any) => {
+  const handleStartEdit = (device: Device) => {
+    setEditingDevice(device);
+    setIsAddDialogOpen(true);
+  };
+
+  const handleAction = (action: ActionType, device: Device) => {
     switch (action) {
       case "schedule":
         handleScheduleOpen(device);
         break;
       case "edit":
-        // Deschidem formularul și setăm dispozitivul curent pentru editare
-        setSelectedDevice(device);
-        setIsAddDialogOpen(true);
+        handleStartEdit(device);
         break;
       case "remove":
-        // Ștergem instantaneu folosind ID-ul dispozitivului
-        const deviceId = device._id?.$oid || device._id;
-        handleRemoving(deviceId);
+        setDeviceToDelete(device);
         break;
       default:
         break;
@@ -194,7 +207,8 @@ const DeviceTable = () => {
     if (!selectedDevice) return;
     try {
       if (selectedAction === "schedule") {
-        console.log(`Scheduled action for device ${selectedDevice._id?.$oid || selectedDevice._id}`);
+        const deviceId = (selectedDevice as any)._id?.$oid || (selectedDevice as any)._id;
+        console.log(`Scheduled action for device ${deviceId}`);
       }
       handleScheduleClose();
     } catch (error) {
@@ -203,13 +217,13 @@ const DeviceTable = () => {
   };
 
   const handleAddDialogOpen = () => {
-    setSelectedDevice(null); // Golim formularul pentru o adăugare nouă
+    setEditingDevice(null);
     setIsAddDialogOpen(true);
   };
 
   const handleAddDialogClose = () => {
     setIsAddDialogOpen(false);
-    setSelectedDevice(null);
+    setEditingDevice(null);
   };
 
   const handleAddDeviceSuccess = () => {
@@ -234,13 +248,28 @@ const DeviceTable = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Formular Adăugare / Editare */}
-      <AddDeviceForm
+      
+      {/* Dialog Confirmare Stergere (Modificarea colegului) */}
+      <Dialog open={Boolean(deviceToDelete)} onClose={handleCancelRemove}>
+        <DialogTitle>Delete Device</DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete "{deviceToDelete?.deviceName}"? This
+          action cannot be undone.
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelRemove}>Cancel</Button>
+          <Button onClick={handleConfirmRemove} color="error" variant="contained">
+           Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+      
+      {/* Formularul redenumit de coleg */}
+      <DeviceForm
         open={isAddDialogOpen}
+        device={editingDevice}
         onClose={handleAddDialogClose}
         onSuccess={handleAddDeviceSuccess}
-        device={selectedDevice} // Trimitem datele către formularul de editare
       />
     </Container>
   );

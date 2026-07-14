@@ -22,14 +22,12 @@ def add_device():
         print(e)
         return jsonify({'error': str(e)}), 400
 
-# --- RUTA COMBINATĂ PENTRU EDITARE (PUT) ȘI ȘTERGERE (DELETE) ---
 @app.route('/device/<_id>', methods=['PUT', 'DELETE'])
 def manage_device(_id):
-    # Dacă primim o cerere de UPDATE
     if request.method == 'PUT':
         try:
             device_data = request.get_json()
-            device_data.pop('_id', None) # Eliminăm ID-ul pentru a evita erorile de suprascriere
+            device_data.pop('_id', None)
             
             deviceToUpdate = Device.objects(id=ObjectId(_id))
             if deviceToUpdate:
@@ -41,7 +39,6 @@ def manage_device(_id):
             print(e)
             return jsonify({'error': str(e)}), 400
 
-    # Dacă primim o cerere de ȘTERGERE
     elif request.method == 'DELETE':
         try:
             deviceToDelete = Device.objects(id=ObjectId(_id))

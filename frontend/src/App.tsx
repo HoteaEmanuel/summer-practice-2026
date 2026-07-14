@@ -3,7 +3,7 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Devices from "./pages/Devices";
-import AddDeviceForm from "./components/AddDeviceForm";
+import AddDeviceForm from "./components/DeviceForm";
 import ManageUsers from "./pages/ManageUsers";
 import Profile from "./pages/Profile";
 import { SidebarLayout } from "./pages/SidebarLayout";
