@@ -32,7 +32,6 @@ const initialFormData: DeviceInput = {
   writeCommunity: "",
 };
 
-/** Extrage doar câmpurile gestionate de formular dintr-un device existent. */
 const deviceToFormData = (device: Device): DeviceInput => ({
   deviceName: device.deviceName ?? "",
   deviceSlNo: device.deviceSlNo ?? "",
