@@ -27,10 +27,8 @@ if os.environ.get('FLASK_ENV') == 'development' or os.environ.get('FLASK_DEBUG')
 
 
 sched = BackgroundScheduler(daemon=True)
-sched.add_job(power_off_devices,'interval',hours=1)
-next_run_time = datetime.now() + timedelta(hours=1, minutes=5)
-sched.add_job(power_on_devices,'interval',hours=1, next_run_time=next_run_time)
-
+sched.add_job(power_off_devices, 'interval', minutes=1)
+sched.add_job(power_on_devices, 'interval', minutes=1)
 sched.start()
 
 from .routes.users import app

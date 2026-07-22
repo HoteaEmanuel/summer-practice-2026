@@ -1,3 +1,5 @@
+import { ToggleButton, ToggleButtonGroup } from "@mui/material";
+import EventIcon from "@mui/icons-material/Event";
 import { useState, useEffect } from "react";
 import { Box, Card, CardContent, Container, Grid, Typography, CircularProgress } from "@mui/material";
 import DevicesIcon from "@mui/icons-material/Devices";
@@ -17,34 +19,26 @@ import PageHeader from "../components/PageHeader";
 function Dashboard() {
     const [data, setData] = useState({
         totalDevices: 0,
+        scheduledActiveDevices: 0,
         totalPower: 0,
         energySaved: 0,
-        chartData: []
+        hartData: []
     });
+    const [range, setRange] = useState<"week" | "month" | "year">("week");
     const [loading, setLoading] = useState(true);
 
-    // Preluăm datele reale calculate pe baza programului de funcționare
     useEffect(() => {
         const fetchDashboardData = () => {
-            fetch("/api/dashboard-stats")
+            fetch(`/api/dashboard-stats?range=${range}`)
                 .then(res => res.json())
-                .then(json => { 
-                    setData(json); 
-                    setLoading(false); 
-                })
+                .then(json => { setData(json); setLoading(false); })
                 .catch(err => console.error(err));
         };
 
-        // Apelăm prima dată imediat
         fetchDashboardData();
-
-        // LIVE CHANGE: Actualizăm graficul automat la fiecare 5 secunde 
-        // ca să prindă orice Schedule nou salvat de colegi
         const intervalId = setInterval(fetchDashboardData, 5000);
-
-        // Curățăm intervalul dacă utilizatorul pleacă de pe pagină
         return () => clearInterval(intervalId);
-    }, []);
+    }, [range]);
 
     const stats = [
         {
@@ -53,6 +47,13 @@ function Dashboard() {
             unit: "devices",
             icon: <DevicesIcon sx={{ fontSize: 40 }} />,
             color: "primary.main",
+        },
+        {
+            label: "Scheduled Devices",
+            value: data.scheduledActiveDevices,
+            unit: "active schedules",
+            icon: <EventIcon sx={{ fontSize: 40 }} />,
+            color: "info.main",
         },
         {
             label: "Total Power Consumption",
@@ -83,6 +84,17 @@ function Dashboard() {
                                     <CardContent sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                                         <Box sx={{ color }}>{icon}</Box>
                                         <Box>
+                                            <ToggleButtonGroup
+                                                value={range}
+                                                exclusive
+                                                onChange={(_e, newRange) => newRange && setRange(newRange)}
+                                                size="small"
+                                                sx={{ mb: 2 }}
+                                            >
+                                                <ToggleButton value="week">Week</ToggleButton>
+                                                <ToggleButton value="month">Month</ToggleButton>
+                                                <ToggleButton value="year">Year</ToggleButton>
+                                            </ToggleButtonGroup>
                                             <Typography variant="body2" color="text.secondary">{label}</Typography>
                                             <Typography variant="h4" component="p">{value}</Typography>
                                             <Typography variant="caption" color="text.secondary">{unit}</Typography>
@@ -95,9 +107,22 @@ function Dashboard() {
 
                     <Card elevation={2} sx={{ mt: 3 }}>
                         <CardContent>
-                            <Typography variant="h6" gutterBottom>Power Usage This Week</Typography>
+                            <ToggleButtonGroup
+                                value={range}
+                                exclusive
+                                onChange={(_e, newRange) => newRange && setRange(newRange)}
+                                size="small"
+                                sx={{ mb: 2 }}
+                            >
+                                <ToggleButton value="week">Week</ToggleButton>
+                                <ToggleButton value="month">Month</ToggleButton>
+                                <ToggleButton value="year">Year</ToggleButton>
+                            </ToggleButtonGroup>
+                            <Typography variant="h6" gutterBottom>
+                                Power Usage — {range.charAt(0).toUpperCase() + range.slice(1)}
+                            </Typography>
                             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                                Daily consumption (kWh) across all {data.totalDevices} registered devices
+                                Consumption (kWh) across all {data.totalDevices} registered devices
                             </Typography>
                             <Box sx={{ width: "100%", height: 320 }}>
                                 <ResponsiveContainer>
