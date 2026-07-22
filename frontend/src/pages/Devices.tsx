@@ -248,19 +248,12 @@ const DeviceTable = () => {
     <Container maxWidth={false} disableGutters>
       <PageHeader title="Devices" breadcrumbItems={["Home", "Devices"]} />
       <MaterialReactTable table={table} />
-      <Dialog open={isScheduleDialogOpen} onClose={handleScheduleClose}>
-        <DialogTitle>Schedule Action</DialogTitle>
-        <DialogContent>
-          {/* Add content for scheduling here */}
-          Schedule dialog content...
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleScheduleClose}>Cancel</Button>
-          <Button onClick={handlePerformAction} color="primary">
-            Schedule
-          </Button>
-        </DialogActions>
-      </Dialog>
+        <ScheduleForm
+          open={isScheduleDialogOpen}
+          device={selectedDevice}
+          onClose={handleScheduleClose}
+          onSuccess={fetchDevices}
+        />
       
       <Dialog open={Boolean(deviceToDelete)} onClose={handleCancelRemove}>
         <DialogTitle>Delete Device</DialogTitle>
