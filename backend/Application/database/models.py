@@ -26,13 +26,6 @@ class Device(Document):
     writeCommunity = StringField(required=False)
     powerOnTime = StringField(required=False)  # format: "HH:MM"
     powerOffTime = StringField(required=False)  # format: "HH:MM"
-<<<<<<< HEAD
-    count = IntField(required=False, default=1)  # câte dispozitive de acest tip
-    consumptionPerHour = FloatField(required=False)  # kWh per hour
-    
-    # --- Câmpul nou adăugat pentru logica de Schedule ---
-    schedule = DictField(default={}) 
-=======
     scheduleEnabled = BooleanField(required=False, default=False)
     scheduleDays = ListField(
         StringField(choices=["mon", "tue", "wed", "thu", "fri", "sat", "sun"]),
@@ -41,7 +34,6 @@ class Device(Document):
     )
     count = IntField(required=False, default=1)
     consumptionPerHour = FloatField(required=False) 
->>>>>>> af81246 (feat: add device scheduling (on/off time window + active days))
 
 class DailySaving(EmbeddedDocument):
     subId = ObjectIdField(required=True, default=lambda: ObjectId())

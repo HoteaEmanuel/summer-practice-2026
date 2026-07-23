@@ -17,14 +17,16 @@ export const saveSession = ({
   sessionStorage.setItem("access_token", access_token);
   sessionStorage.setItem("role", role || "");
   sessionStorage.setItem("group", group || "");
-  sessionStorage.setItem("name", name || loggedinUser || username);
+  sessionStorage.setItem("name", name || loggedinUser || username || "");
+  sessionStorage.setItem("username", username || loggedinUser || "");
 };
 
 export const getSession = () => {
   const access_token = sessionStorage.getItem("access_token");
   const role = sessionStorage.getItem("role");
-  const group = sessionStorage.getItem("role");
+  const group = sessionStorage.getItem("group");
   const name = sessionStorage.getItem("name");
+  const username = sessionStorage.getItem("username");
 
-  return { access_token, role, group, name };
+  return { access_token, role, group, name, username };
 };

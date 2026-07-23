@@ -19,7 +19,7 @@ secret.read(config_path)
 
 app.config['JWT_SECRET_KEY'] = secret['db']['SECRET_KEY']
 app.config['SECRET_KEY'] = secret['db']['SECRET_KEY']
-jwt = JWTManager(app)
+jwt_manager = JWTManager(app)
 
 # decorator for verifying the JWT
 def token_required(f):
@@ -32,11 +32,11 @@ def token_required(f):
         # return 401 if token is not passed
         if not token:
             return jsonify({'message' : 'Token is missing !!'}), 401
-  
+
         try:
             # decoding the payload to fetch the stored details
             data = jwt.decode(token, app.config['SECRET_KEY'],algorithms=["HS256", "RS256"], options={"verify_signature": False})
-            current_user = User.objects.get(username = data['unique_name'])
+            current_user = User.objects.get(username = data['sub'])
          
         except Exception as e:
             print(e)
@@ -79,7 +79,7 @@ def register():
     role = data.get('role', 'user')
     site = data.get('site')
     group = data.get('group')
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     user = {
         "name": name or username,
         "username": username,
@@ -92,3 +92,24 @@ def register():
     if 'error' not in action:
         return {"message": "User succesfully added"}
     return action
+
+
+@app.route('/change-password', methods=['POST'])
+@token_required
+def change_password(current_user):
+    data = request.get_json()
+    current_password = data.get('currentPassword')
+    new_password = data.get('newPassword')
+
+    if not current_password or not new_password:
+        return jsonify({'message': 'Current and new password are required'}), 400
+
+    if not bcrypt.checkpw(current_password.encode('utf-8'), current_user.password.encode('utf-8')):
+        return jsonify({'message': 'Current password is incorrect'}), 401
+
+    if len(new_password) < 6:
+        return jsonify({'message': 'New password must be at least 6 characters'}), 400
+
+    current_user.password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    current_user.save()
+    return jsonify({'message': 'Password updated successfully'}), 200

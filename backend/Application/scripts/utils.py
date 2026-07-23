@@ -18,7 +18,7 @@ def ensure_default_dev_user(username='admin', password='testuser', name='Dev Adm
     if existing_user:
         return False
 
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     User(name=name, username=username, password=hashed_password, role='admin', site='global', group='default').save()
     print(f"Default development user '{username}' created.")
     return True
