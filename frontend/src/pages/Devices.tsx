@@ -194,15 +194,15 @@ const DeviceTable = () => {
     renderRowActionMenuItems: ({ row, closeMenu }) => [
       <MenuItem key="schedule" onClick={() => { handleAction("schedule", row.original); closeMenu(); }} sx={{ py: 1.5, px: 2 }}>
         <ListItemIcon><EventIcon fontSize="small" color="primary" /></ListItemIcon>
-        <ListItemText>Programa</ListItemText>
+        <ListItemText>Schedule</ListItemText>
       </MenuItem>,
       <MenuItem key="edit" onClick={() => { handleAction("edit", row.original); closeMenu(); }} sx={{ py: 1.5, px: 2 }}>
         <ListItemIcon><EditIcon fontSize="small" sx={{ color: 'text.secondary' }} /></ListItemIcon>
-        <ListItemText>Edita</ListItemText>
+        <ListItemText>Edit</ListItemText>
       </MenuItem>,
       <MenuItem key="remove" onClick={() => { handleAction("remove", row.original); closeMenu(); }} sx={{ py: 1.5, px: 2, color: "error.main" }}>
         <ListItemIcon><DeleteIcon fontSize="small" color="error" /></ListItemIcon>
-        <ListItemText>Elimina</ListItemText>
+        <ListItemText>Delete</ListItemText>
       </MenuItem>,
     ],
   });
@@ -248,19 +248,12 @@ const DeviceTable = () => {
     <Container maxWidth={false} disableGutters>
       <PageHeader title="Devices" breadcrumbItems={["Home", "Devices"]} />
       <MaterialReactTable table={table} />
-      <Dialog open={isScheduleDialogOpen} onClose={handleScheduleClose}>
-        <DialogTitle>Schedule Action</DialogTitle>
-        <DialogContent>
-          {/* Add content for scheduling here */}
-          Schedule dialog content...
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleScheduleClose}>Cancel</Button>
-          <Button onClick={handlePerformAction} color="primary">
-            Schedule
-          </Button>
-        </DialogActions>
-      </Dialog>
+        <ScheduleForm
+          open={isScheduleDialogOpen}
+          device={selectedDevice}
+          onClose={handleScheduleClose}
+          onSuccess={fetchDevices}
+        />
       
       <Dialog open={Boolean(deviceToDelete)} onClose={handleCancelRemove}>
         <DialogTitle>Delete Device</DialogTitle>

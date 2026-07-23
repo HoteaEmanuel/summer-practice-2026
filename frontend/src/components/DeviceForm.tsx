@@ -30,6 +30,7 @@ const initialFormData: DeviceInput = {
   password: "",
   readCommunity: "",
   writeCommunity: "",
+  consumptionPerHour: 0,
 };
 
 const deviceToFormData = (device: Device): DeviceInput => ({
@@ -47,6 +48,7 @@ const deviceToFormData = (device: Device): DeviceInput => ({
   password: device.password ?? "",
   readCommunity: device.readCommunity ?? "",
   writeCommunity: device.writeCommunity ?? "",
+  consumptionPerHour: device.consumptionPerHour ?? 0,
 });
 
 interface AddDeviceFormProps {
@@ -207,6 +209,17 @@ const DeviceForm = ({
               onChange={handleChange}
               fullWidth
               required
+            />
+
+            <TextField
+              name="consumptionPerHour"
+              label="Consumption (kWh/hour)"
+              type="number"
+              value={formData.consumptionPerHour}
+              onChange={handleChange}
+              fullWidth
+              required
+              inputProps={{ step: "0.01", min: "0" }}
             />
           </Stack>
 

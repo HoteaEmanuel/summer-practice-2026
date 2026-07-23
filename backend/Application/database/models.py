@@ -34,6 +34,9 @@ class Device(Document):
     )
     count = IntField(required=False, default=1)
     consumptionPerHour = FloatField(required=False) 
+    isOn = BooleanField(required=False,default=True)
+    poweredOffSince = DateTimeField(required=False)
+    
 
 class DailySaving(EmbeddedDocument):
     subId = ObjectIdField(required=True, default=lambda: ObjectId())
