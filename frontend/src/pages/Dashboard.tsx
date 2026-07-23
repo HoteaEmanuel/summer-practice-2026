@@ -15,6 +15,7 @@ import {
     YAxis,
 } from "recharts";
 import PageHeader from "../components/PageHeader";
+import { authHeaders } from "../lib/session";
 
 function Dashboard() {
     const [data, setData] = useState({
@@ -29,7 +30,7 @@ function Dashboard() {
 
     useEffect(() => {
         const fetchDashboardData = () => {
-            fetch(`/api/dashboard-stats?range=${range}`)
+            fetch(`/api/dashboard-stats?range=${range}`, { headers: { ...authHeaders() } })
                 .then(res => res.json())
                 .then(json => { setData(json); setLoading(false); })
                 .catch(err => console.error(err));

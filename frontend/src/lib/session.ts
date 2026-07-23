@@ -30,3 +30,8 @@ export const getSession = () => {
 
   return { access_token, role, group, name, username };
 };
+
+export const authHeaders = (): Record<string, string> => {
+  const { access_token } = getSession();
+  return access_token ? { "x-access-token": access_token } : {};
+};

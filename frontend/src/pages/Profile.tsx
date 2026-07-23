@@ -24,7 +24,7 @@ import LockResetIcon from "@mui/icons-material/LockReset";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import PageHeader from "../components/PageHeader";
-import { getSession } from "../lib/session";
+import { authHeaders } from "../lib/session";
 
 type ProfileData = {
   name: string;
@@ -58,8 +58,7 @@ function Profile() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
-    const { access_token } = getSession();
-    fetch("/api/me", { headers: { "x-access-token": access_token || "" } })
+    fetch("/api/me", { headers: { ...authHeaders() } })
       .then((res) => res.json())
       .then((data) => setProfile(data))
       .catch((err) => console.error(err))
@@ -99,12 +98,11 @@ function Profile() {
 
     setSubmitting(true);
     try {
-      const { access_token } = getSession();
       const response = await fetch("/api/change-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-access-token": access_token || "",
+          ...authHeaders(),
         },
         body: JSON.stringify({ currentPassword, newPassword }),
       });

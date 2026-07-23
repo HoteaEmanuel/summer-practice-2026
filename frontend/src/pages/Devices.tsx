@@ -29,6 +29,7 @@ import {
 import DeviceForm from "../components/DeviceForm";
 import PageHeader from "../components/PageHeader";
 import { Device } from "../types/devices.types";
+import { authHeaders } from "../lib/session";
 
 type ActionType = "schedule" | "edit" | "remove" | null;
 
@@ -54,7 +55,8 @@ const DeviceTable = () => {
         cache: "no-store",
         headers: {
           "Pragma": "no-cache",
-          "Cache-Control": "no-cache"
+          "Cache-Control": "no-cache",
+          ...authHeaders(),
         }
       });
       if (!response.ok) {
@@ -117,6 +119,7 @@ const DeviceTable = () => {
     try {
       const response = await fetch("/api/device/" + id, {
         method: "DELETE",
+        headers: { ...authHeaders() },
       });
       if (!response.ok) {
         throw new Error(`Failed to delete device: ${response.status}`);

@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 import PageHeader from "../components/PageHeader";
+import { authHeaders } from "../lib/session";
 
 const ManageUsers = () => {
     const [users, setUsers] = useState([]);
@@ -27,7 +28,7 @@ const ManageUsers = () => {
 
     const fetchData = async () => {
         try {
-            const response = await fetch("/api/users");
+            const response = await fetch("/api/users", { headers: { ...authHeaders() } });
             const data = await response.json();
             setUsers(data);
         } catch (error) {
@@ -67,6 +68,7 @@ const ManageUsers = () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    ...authHeaders(),
                 },
                 body: JSON.stringify({ name, username, password, role, site, group }),
             });

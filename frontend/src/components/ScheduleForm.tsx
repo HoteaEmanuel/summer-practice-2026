@@ -15,6 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Device } from "../types/devices.types";
+import { authHeaders } from "../lib/session";
 
 const DAYS = [
   { value: "mon", label: "Mon" },
@@ -87,7 +88,7 @@ const ScheduleForm = ({
     try {
       const response = await fetch(`/api/device/${device._id.$oid}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({
           scheduleEnabled: enabled,
           powerOnTime: startTime,

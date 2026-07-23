@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import DockedDialog from "./DockedDialog";
 import { Device, DeviceInput } from "../types/devices.types";
+import { authHeaders } from "../lib/session";
 
 const initialFormData: DeviceInput = {
   deviceName: "",
@@ -104,7 +105,7 @@ const DeviceForm = ({
 
       const response = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify(formData),
       });
 
