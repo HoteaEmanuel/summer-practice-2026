@@ -17,7 +17,7 @@ import CellTowerIcon from "@mui/icons-material/CellTower";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const DRAWER_WIDTH = 240;
 
@@ -58,7 +58,7 @@ const NavSidebar = () => {
                 <List>
                     {navItems.map(({ label, icon, path }) => (
                         <ListItem key={label} disablePadding>
-                            <ListItemButton onClick={() => navigate(path)}>
+                            <ListItemButton component={Link} to={path}>
                                 <ListItemIcon>{icon}</ListItemIcon>
                                 <ListItemText primary={label} />
                             </ListItemButton>
@@ -69,7 +69,7 @@ const NavSidebar = () => {
             <Divider />
             <List>
                 <ListItem disablePadding>
-                    <ListItemButton onClick={() => navigate("/profile")}>
+                    <ListItemButton component={Link} to="/profile">
                         <ListItemIcon>
                             <Avatar sx={{ width: 32, height: 32 }} />
                         </ListItemIcon>

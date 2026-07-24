@@ -5,12 +5,14 @@ from Application import app
 from flask import jsonify, request  # type: ignore
 from ..database.models import Device
 from bson import ObjectId
+from .auth import token_required
 
 WEEKDAY_CODES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 
 
 @app.route('/devices', methods=['GET'])
-def get_devices():
+@token_required
+def get_devices(current_user):
     try:
         devices = Device.objects().to_json()
         return devices, 200
@@ -19,7 +21,8 @@ def get_devices():
 
 
 @app.route('/device', methods=['POST'])
-def add_device():
+@token_required
+def add_device(current_user):
     try:
         device_data = request.get_json()
         new_device = Device(**device_data)
@@ -31,7 +34,8 @@ def add_device():
 
 
 @app.route('/device/<_id>', methods=['PUT', 'DELETE'])
-def manage_device(_id):
+@token_required
+def manage_device(current_user, _id):
     if request.method == 'PUT':
         try:
             device_data = request.get_json()
@@ -113,7 +117,8 @@ def _weekday_code(d: date) -> str:
 
 
 @app.route('/dashboard-stats', methods=['GET'])
-def get_dashboard_stats():
+@token_required
+def get_dashboard_stats(current_user):
     try:
         devices = list(Device.objects())
         total_devices = len(devices)

@@ -14,7 +14,8 @@ mydb = client.energysaving
 
 
 @app.route('/users', methods=['GET'])
-def get_users():
+@token_required
+def get_users(current_user):
     try:
         users = User.objects().to_json()
         return users, 200

@@ -71,7 +71,8 @@ def login():
     
 
 @app.route('/register', methods=['POST'])
-def register():
+@token_required
+def register(current_user):
     data = request.get_json()
     name = data.get('name')
     username = data.get('username')

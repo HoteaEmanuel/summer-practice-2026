@@ -15,10 +15,18 @@ Login with invalid credentials
     Attempt Invalid Login    INVALID    INVALID
 
 Login with valid user and invalid password
-    Fail    Test case not implemented yet
+    Attempt Invalid Login    ${TEST_USER}    INVALID
 
 Login with invalid user and valid password
-    Fail    Test case not implemented yet
+    Attempt Invalid Login    INVALID    ${TEST_PASSWORD}
+
+Logout
+    Attempt Login
+    Logout
+
+Access protected routes without being logged in
+    Attempt To Access Protected Route    home
+    Attempt To Access Protected Route    devices
 
 
 *** Keywords ***

@@ -36,8 +36,24 @@ Check Logged In
     [Documentation]
     ...    Check that the user is logged in (sidebar menu options are visible)
     Wait For Elements State    a:has-text("Home")
-    Wait For Elements State    a:has-text("Profile")
-    Wait For Elements State    button:has-text("Logout")
+    Wait For Elements State    a[href="/profile"]
+    Wait For Elements State    button[aria-label="logout"]
+
+Logout
+    [Documentation]
+    ...    Log out of the application using the sidebar logout button
+    Click    button[aria-label="logout"]
+    Wait For Elements State    span:has-text("Login")
+
+Attempt To Access Protected Route
+    [Documentation]
+    ...    Navigate directly to a protected route without an active session,
+    ...    and expect to be redirected back to the login page
+    [Arguments]
+    ...    ${path}
+
+    Go To    ${FRONTEND_URL}${path}
+    Wait For Elements State    span:has-text("Login")
 
 Load Project and Login
     [Documentation]
@@ -58,37 +74,108 @@ Add New Device
     ...    Add a new device (must already be on the Devices page)
     [Arguments]
     ...    ${name}
+    ...    ${serial}
+    ...    ${type}
+    ...    ${hw_type}
+    ...    ${site}
     ...    ${group}
-    ...    ${on_time}
-    ...    ${off_time}
-    ...    ${count}
+    ...    ${owner}
     ...    ${consumption}
-    
-    Wait For Elements State    "Add New Device"
-
-    Fill Text    ((//form)[1]//input)[1]    ${name}
-    Fill Text    ((//form)[1]//input)[2]    ${group}
-    Fill Text    ((//form)[1]//input)[3]    ${on_time}
-    Fill Text    ((//form)[1]//input)[4]    ${off_time}
-    Fill Text    ((//form)[1]//input)[5]    ${count}
-    Fill Text    ((//form)[1]//input)[6]    ${consumption}
+    ...    ${ip}
+    ...    ${port}
 
     Click    button:has-text("Add Device")
 
-    Wait For Elements State    "Device added successfully!"
+    Wait For Elements State    input[name="deviceName"]
+
+    Fill Text    input[name="deviceName"]            ${name}
+    Fill Text    input[name="deviceSlNo"]            ${serial}
+    Fill Text    input[name="deviceType"]            ${type}
+    Fill Text    input[name="hwType"]                ${hw_type}
+    Fill Text    input[name="site"]                  ${site}
+    Fill Text    input[name="group"]                 ${group}
+    Fill Text    input[name="owner"]                 ${owner}
+    Fill Text    input[name="consumptionPerHour"]    ${consumption}
+    Fill Text    input[name="ip"]                    ${ip}
+    Fill Text    input[name="port"]                  ${port}
+
+    Click    div[aria-labelledby="connectivity-type-label"]
+    Click    li:has-text("SSH")
+
+    Fill Text    input[name="loginUser"]    admin
+    Fill Text    input[name="password"]     admin123
+
+    Click    button:has-text("Submit")
+
+    Wait For Elements State    input[name="deviceName"]    hidden
+
+Add Schedule
+    [Documentation]
+    ...    Configure a power schedule for a device (must already be on the Devices page)
+    [Arguments]
+    ...    ${name}
+    ...    ${on_time}
+    ...    ${off_time}
+    ...    @{days}
+
+    Click Device Option    ${name}    Schedule
+
+    Wait For Elements State    text=Save Schedule
+
+    Check Checkbox    input[type="checkbox"]
+
+    Fill Text    input[type="time"] >> nth=0    ${on_time}
+    Fill Text    input[type="time"] >> nth=1    ${off_time}
+
+    FOR    ${day}    IN    @{days}
+        Click    button:has-text("${day}")
+    END
+
+    Click    button:has-text("Save Schedule")
+
+    Wait For Elements State    text=Save Schedule    hidden
+
+Check Device Schedule
+    [Documentation]
+    ...    Reopen a device's schedule dialog and verify the configured schedule
+    [Arguments]
+    ...    ${name}
+    ...    ${on_time}
+    ...    ${off_time}
+    ...    @{days}
+
+    Click Device Option    ${name}    Schedule
+
+    Wait For Elements State    text=Save Schedule
+
+    Get Checkbox State    input[type="checkbox"]    ==    Checked
+
+    Get Property    input[type="time"] >> nth=0    value    ==    ${on_time}
+    Get Property    input[type="time"] >> nth=1    value    ==    ${off_time}
+
+    FOR    ${day}    IN    @{days}
+        Get Attribute    button:has-text("${day}")    aria-pressed    ==    true
+    END
+
+    Click    button:has-text("Cancel")
+
+    Wait For Elements State    text=Save Schedule    hidden
 
 Check Device Info
     [Documentation]
     ...    Check device information for given name in the devices table
     [Arguments]
     ...    ${name}
+    ...    ${serial}
+    ...    ${type}
+    ...    ${hw_type}
+    ...    ${site}
     ...    ${group}
-    ...    ${on_time}
-    ...    ${off_time}
-    ...    ${count}
-    ...    ${consumption}
-    
-    @{expected_values}    Create List    ${group}    ${on_time}    ${off_time}    ${count}    ${consumption}
+    ...    ${owner}
+    ...    ${ip}
+    ...    ${port}
+
+    @{expected_values}    Create List    ${serial}    ${type}    ${hw_type}    ${site}    ${group}    ${owner}    ssh | ${ip}:${port}
 
     ${rows}=    Get Elements    css=table.MuiTable-root tbody > tr
 
@@ -102,7 +189,7 @@ Check Device Info
 
         IF    '${col_name}' == '${name}'
             ${row_found}=    Set Variable    ${True}
-            FOR    ${i}    IN RANGE    0    5
+            FOR    ${i}    IN RANGE    0    7
                 ${table_index}=    Evaluate                    ${i} + 1
                 ${text}=           Get Text                    ${columns}[${table_index}]
                 Should Be Equal    ${expected_values}[${i}]    ${text}
@@ -118,15 +205,17 @@ Remove All Devices
     [Documentation]
     ...    Removes all devices
 
-    ${rows}=  Get Element Count    css=table.MuiTable-root tbody > tr
+    ${rows}=  Get Element Count    css=table.MuiTable-root tbody > tr:has(button)
 
     WHILE    ${rows} > 0
         ${rows}=       Evaluate        ${rows} - 1
-        
+
         # Click the button in the last column
-        ${button}=    Get Element    css=table.MuiTable-root tbody > tr:last-child >> td:last-child >> button
+        ${button}=    Get Element    css=table.MuiTable-root tbody > tr:has(button):last-child >> td:last-child >> button
         Click         ${button}
-        Click         li:has-text("Remove")
+        Click         li:has-text("Delete")
+        Click         button:has-text("Delete")
+        Wait For Elements State    text=Delete Device    hidden
     END
 
 Click Device Option
@@ -172,20 +261,43 @@ Click Device Option by Index
 
 Edit Device
     [Documentation]
-    ...    Edit a given device details
+    ...    Edit a given device's details
     [Arguments]
     ...    ${name}
     ...    ${newName}=${EMPTY}
-    ...    ${group}=${EMPTY}
-    ...    ${on_time}=${EMPTY}
-    ...    ${off_time}=${EMPTY}
-    ...    ${count}=${EMPTY}
-    ...    ${consumption}=${EMPTY}
-    
+    ...    ${newSerial}=${EMPTY}
+    ...    ${newType}=${EMPTY}
+    ...    ${newHwType}=${EMPTY}
+    ...    ${newSite}=${EMPTY}
+    ...    ${newGroup}=${EMPTY}
+    ...    ${newOwner}=${EMPTY}
+
     Click Device Option    ${name}    Edit
 
+    Wait For Elements State    input[name="deviceName"]
+
     IF    "${newName}" != "${EMPTY}"
-        Fill Text    ((//div)[contains(@class, 'MuiDialogContent-root')]//input)[1]    ${newName}
+        Fill Text    input[name="deviceName"]    ${newName}
+    END
+    IF    "${newSerial}" != "${EMPTY}"
+        Fill Text    input[name="deviceSlNo"]    ${newSerial}
+    END
+    IF    "${newType}" != "${EMPTY}"
+        Fill Text    input[name="deviceType"]    ${newType}
+    END
+    IF    "${newHwType}" != "${EMPTY}"
+        Fill Text    input[name="hwType"]    ${newHwType}
+    END
+    IF    "${newSite}" != "${EMPTY}"
+        Fill Text    input[name="site"]    ${newSite}
+    END
+    IF    "${newGroup}" != "${EMPTY}"
+        Fill Text    input[name="group"]    ${newGroup}
+    END
+    IF    "${newOwner}" != "${EMPTY}"
+        Fill Text    input[name="owner"]    ${newOwner}
     END
 
-    Click    button:has-text("Update")
+    Click    button:has-text("Save")
+
+    Wait For Elements State    input[name="deviceName"]    hidden
